@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+  blogDjango:
+    build: ./myBlogDjango/.
+    command: python manage.py runserver 0.0.0.0:5000
+    volumes:
+     - ./myBlogDjango:/app
+    ports:
+      - "5000:80"
+    links:
+      - db
+    networks:
+      - front-tier
+      - back-tier
+
+  blogXmlrpc:
+    build: ./myBlogXMLRPC/.
+    command: python blogXMLRPC.py
+      - ./myBlogXMLRPC:/app
+    ports:
+      - "5001:80"
+    links:
+      - db
+    networks:
+      - front-tier
+      - back-tier
+
+  vueBlog:
+    build: ./VueBlog/.
+    ports:
+      - "5002:80"
+    links:
+      - db
+    networks:
+      - back-tier
+
+  redis:
+    image: redis
+    ports: ["5003"]
+    networks:
+      - back-tier
+
+  db:
+    image: mysql
+    expose:
+      -"3306"
+    volumes:
+      - "db-data:/var/lib/mysql/data"
+    networks:
+      - back-tier
+
+volumes:
+  db-data:
+
+networks:
+  front-tier:
+  back-tier:
+
+
